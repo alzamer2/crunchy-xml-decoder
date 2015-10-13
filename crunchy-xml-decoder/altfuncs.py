@@ -21,6 +21,7 @@ def config():
     video_format = qualities[quality][0]
     resolution = qualities[quality][1]
     global lang
+    global lang2
     lang = configr.get('SETTINGS', 'language')
     lang2 = configr.get('SETTINGS', 'language2')
     langd = {'Espanol_Espana': u'Español (Espana)', 'Francais': u'Français (France)', 'Portugues': u'Português (Brasil)',
@@ -29,7 +30,11 @@ def config():
     lang = langd[lang]
     lang2 = langd[lang2]
     forcesub = configr.getboolean('SETTINGS', 'forcesubtitle')
-    return [lang, lang2, forcesub]
+    global forceusa
+    forceusa = configr.getboolean('SETTINGS', 'forceusa')
+    global localizecookies
+    localizecookies = configr.getboolean('SETTINGS', 'localizecookies')
+    return [lang, lang2, forcesub, forceusa, localizecookies, quality]
 
 
 def playerrev(url):
@@ -53,11 +58,16 @@ def gethtml(url):
         session = requests.session()
         session.cookies = cookies
         del session.cookies['c_visitor']
-        # try:
-            # session.cookies['sess_id'] = requests.get('http://www.crunblocker.com/sess_id.php').text
-        # except:
-            # sleep(10)  # sleep so we don't overload crunblocker
-            # session.cookies['sess_id'] = requests.get('http://www.crunblocker.com/sess_id.php').text
+        if not forceusa and localizecookies:
+            session.cookies['c_locale']={u'Español (Espana)' : 'esES', u'Français (France)' : 'frFR', u'Português (Brasil)' : 'ptBR',
+                                        u'English' : 'enUS', u'Español' : 'esLA', u'Türkçe' : 'enUS', u'Italiano' : 'itIT',
+                                        u'العربية' : 'arME' , u'Deutsch' : 'deDE'}[lang]
+        if forceusa:
+            try:
+                session.cookies['sess_id'] = requests.get('http://www.crunblocker.com/sess_id.php').text
+            except:
+                sleep(10)  # sleep so we don't overload crunblocker
+                session.cookies['sess_id'] = requests.get('http://www.crunblocker.com/sess_id.php').text
     parts = urlparse.urlsplit(url)
     if not parts.scheme or not parts.netloc:
         print 'Apparently not a URL'
@@ -84,7 +94,16 @@ def getxml(req, med_id):
         session = requests.session()
         session.cookies = cookies
         del session.cookies['c_visitor']
-        # session.cookies['sess_id'] = requests.get('http://www.crunblocker.com/sess_id.php').text
+        if not forceusa and localizecookies:
+            session.cookies['c_locale']={u'Español (Espana)' : 'esES', u'Français (France)' : 'frFR', u'Português (Brasil)' : 'ptBR',
+                                        u'English' : 'enUS', u'Español' : 'esLA', u'Türkçe' : 'enUS', u'Italiano' : 'itIT',
+                                        u'العربية' : 'arME' , u'Deutsch' : 'deDE'}[lang]
+        if forceusa:
+            try:
+                session.cookies['sess_id'] = requests.get('http://www.crunblocker.com/sess_id.php').text
+            except:
+                sleep(10)  # sleep so we don't overload crunblocker
+                session.cookies['sess_id'] = requests.get('http://www.crunblocker.com/sess_id.php').text
     headers = {'Referer': 'http://static.ak.crunchyroll.com/flash/' + player_revision + '/StandardVideoPlayer.swf',
                'Host': 'www.crunchyroll.com', 'Content-type': 'application/x-www-form-urlencoded',
                'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; rv:26.0) Gecko/20100101 Firefox/26.0)'}

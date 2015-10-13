@@ -18,6 +18,10 @@ lib64/
 parts/
 sdist/
 var/
+export/
+crunchy-xml-decoder/Crypto/
+crunchy-xml-decoder/lxml/
+temp/
 *.egg-info/
 .installed.cfg
 *.egg
@@ -54,3 +58,7 @@ docs/_build/
 
 # Other
 .idea/
+cookies
+debug.html
+settings.ini
+queue.txt
